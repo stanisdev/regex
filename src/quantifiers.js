@@ -1,28 +1,51 @@
 'use strict';
 
 class Quantifiers {
-  list = ['*', '+', '?'];
+  plain = ['*', '+', '?'];
+  group = {
+    start: ['{'],
+    end: ['}'],
+  };
+  type = '';
+  pattern = '';
+  started = false;
 
-  exists(char) {
-    return this.list.includes(char);
+  has(char) {
+    if (this.plain.includes(char)) {
+      this.type = 'plain';
+      this.pattern = char;
+      return true;
+    }
+    const { start, end } = this.group;
+
+    if (start.includes(char)) {
+      this.type = 'group';
+      return this.started = true;
+    }
+    if (end.includes(char)) {
+      this.started = false;
+      return true;
+    }
+    if (this.started) {
+      this.pattern += char;
+    }
   }
 
-  extract(pattern) {
-    return '+'; // dummy result
-  }
-
-  ['+'](matchSymbol, subInput) {
-    let result = '';
-    const splitted = subInput.split('');
-    for (let i = 0; i < splitted.length; i++) {
-      const symbol = splitted[i];
-      if (symbol === matchSymbol) {
-        result += symbol;
-      } else {
-        break;
+  getRange() {
+    let [min, max] = this.pattern.split(',');
+    min = +min;
+    if (typeof max == 'undefined') {
+      max = min;
+    }
+    else if (typeof max == 'string') {
+      if (max.length < 1) {
+        max = Number.POSITIVE_INFINITY;
+      }
+      else {
+        max = +max;
       }
     }
-    return result;
+    return [min, max];
   }
 }
 

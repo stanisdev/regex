@@ -1,23 +1,37 @@
 'use strict';
 
 class MetaCharacters {
-  chars = ['.'];
+  chars = {
+    plain: ['.'],
+    backSlash: '\\',
+  };
+  escaped = ['s', 'd', 'S'];
+  started = false;
+  pattern = '';
 
-  exists(char) {
-    return this.chars.includes(char);
-  }
-
-  extract(pattern) {
-    const result = pattern.split('').filter(symbol => {
-      return this.chars.includes(symbol);
-    });
-    if (result.length > 0) {
-      return result[0];
+  has(char) {
+    const { chars } = this;
+    if (chars.plain.includes(char)) {
+      this.pattern = char;
+      return true;
+    }
+    else if (char == chars.backSlash) {
+      return this.started = true;
+    }
+    if (this.started) {
+      this.pattern = char;
+      this.started = false;
+      return true;
     }
   }
 
-  ['.'](subInput) {
-    return subInput.slice(0, 1);
+  match(subInput) {
+    let result = '';
+
+    for (let i = 0; i < subInput.length; i++) {
+      const char = subInput.slice(i, i+1);
+      // @todo: match depending on pattern
+    }
   }
 }
 
