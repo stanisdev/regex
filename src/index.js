@@ -28,19 +28,31 @@ class RegEx {
    */
   match() {
     const { splitted } = this;
-    for (let i = 0; i < splitted.expression.length; i++) {
-      const token = splitted.expression[i];
-
-      if (this.#isSpecialSymbol(token)) {
-        this.patternStarted = true;
-      }
-      else {
-        if (this.patternStarted) {
-          this.#processPattern();
+    try {
+      for (let i = 0; i < splitted.expression.length; i++) {
+        const expressionToken = splitted.expression[i];
+  
+        if (this.#isSpecialSymbol(expressionToken)) {
+          this.patternStarted = true;
         }
-        this.result += token;
-        this.counter++;
+        else {
+          if (this.patternStarted) {
+            try {
+              this.#processPattern();
+            } catch {
+              throw 0;
+            }
+          }
+          const inputToken = this.input[this.counter];
+          if (inputToken !== expressionToken) {
+            throw 0;
+          }
+          this.result += expressionToken;
+          this.counter++;
+        }
       }
+    } catch {
+      this.result = null;
     }
   }
 
@@ -49,27 +61,28 @@ class RegEx {
    */
   #processPattern() {
     this.patternStarted = false;
+    let result = '';
     
     const subInput = this.input.slice(this.counter);
     const [min, max] = this.quantifiers.getRange();
+    const match = this.#getMatch();
 
-    let result;
-    if (this.groups.pattern.length > 0) {
-      result = this.groups.match(subInput);
+    for (let i = 0; i < subInput.length; i++) {
+      if (i == max) {
+        break;
+      }
+      const char = subInput.slice(i, i+1);
+      if (match(char)) {
+        result += char;
+      } else {
+        break;
+      }
     }
-    else {
-      result = this.metaCharacters.match(subInput);
-    }
-    let { length } = result;
-    if (length < min) {
-      throw new Error('?');
-    }
-    if (length > max) {
-      result = result.slice(0, max);
-      length = max;
+    if (result.length < min) {
+      throw 0;
     }
     this.result += result;
-    this.counter += length;
+    this.counter += result.length;
   }
 
   /**
@@ -99,9 +112,16 @@ class RegEx {
       expression: this.expression.split(''),
     };
   }
-}
 
-// const re = new RegEx('dooooonald', 'd[obvm]{5}nald');
-const re = new RegEx('d00000nald', 'd\\d{5}nald');
-re.match();
-console.log(re.result);
+  /**
+   * Get method match of the appropriate class
+   * @return {Function}
+   */
+  #getMatch() {
+    if (this.metaCharacters.pattern.length > 0) {
+      return this.metaCharacters.match.bind(this.metaCharacters);
+    } else {
+      return this.groups.match.bind(this.groups);
+    }
+  }
+}

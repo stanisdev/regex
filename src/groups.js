@@ -14,6 +14,7 @@ class Groups {
       return this.started = true;
     }
     if (end.includes(char)) {
+      this.pattern = this.pattern.split('');
       this.started = false;
       return true;
     }
@@ -22,19 +23,8 @@ class Groups {
     }
   }
 
-  match(subInput) {
-    let result = '';
-    const tokens = this.pattern.split('');
-
-    for (let i = 0; i < subInput.length; i++) {
-      const char = subInput.slice(i, i+1);
-      if (tokens.includes(char)) {
-        result += char;
-      } else {
-        break;
-      }
-    }
-    return result;
+  match(char) {
+    return this.pattern.includes(char);
   }
 }
 

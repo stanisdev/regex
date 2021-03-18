@@ -32,6 +32,29 @@ class Quantifiers {
   }
 
   getRange() {
+    if (this.type == 'plain') {
+      return this.#calcPlainPattern();
+    } else {
+      return this.#calcGroupPattern();
+    }
+  }
+
+  #calcPlainPattern() {
+    const methods = {
+      ['?']() {
+        return [0, 1];
+      },
+      ['+']() {
+        return [1, Number.POSITIVE_INFINITY];
+      },
+      ['*']() {
+        return [0, Number.POSITIVE_INFINITY];
+      }
+    };
+    return methods[this.pattern]();
+  }
+
+  #calcGroupPattern() {
     let [min, max] = this.pattern.split(',');
     min = +min;
     if (typeof max == 'undefined') {
@@ -40,8 +63,7 @@ class Quantifiers {
     else if (typeof max == 'string') {
       if (max.length < 1) {
         max = Number.POSITIVE_INFINITY;
-      }
-      else {
+      } else {
         max = +max;
       }
     }
