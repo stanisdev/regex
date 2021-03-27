@@ -121,6 +121,7 @@ class RegEx {
     if (this.metaCharacters.pattern.length > 0) {
       return this.metaCharacters.match.bind(this.metaCharacters);
     } else {
+      this.groups.beforeMatch();
       return this.groups.match.bind(this.groups);
     }
   }

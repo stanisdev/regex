@@ -9,6 +9,7 @@ class Quantifiers {
   type = '';
   pattern = '';
   started = false;
+  isGreedy = false;
 
   has(char) {
     if (this.plain.includes(char)) {
